@@ -8,8 +8,8 @@ using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCou
 public class MeshGeneratorEditor : Editor
 {
     MeshGenerator obj;
-    
 
+    int counter;
 
     public override void OnInspectorGUI()
     {
@@ -43,7 +43,7 @@ public class MeshGeneratorEditor : Editor
 
         Vector3 previous = obj.points[0, 0, 0].Position;
 
-        int counter = 0;
+        //int counter = 0;
 
         for (int x = 0; x < obj.points.GetLength(0); x++)
         {
@@ -56,14 +56,22 @@ public class MeshGeneratorEditor : Editor
                     previous = obj.points[x, y, z].Position;
 
                     if (obj.points[x, y, z].IsActive)
-                        Handles.color = obj.activePointColor;
+                        Handles.color = Color.Lerp(obj.inactivePointColor, obj.activePointColor, Remap(obj.points[x, y, z].RandomValue, 5, 60, 0, 1));
                     else
                         Handles.color = obj.inactivePointColor;
 
-                    //Handles.Label(previous, $"     {counter++}:({x},{y},{z})");
+                    //Handles.Label(previous, $"     :({x},{y},{z})");
+                    counter++;
 
-                    if (obj.manulySetPoint && Handles.Button(previous, Quaternion.identity, 0.1f, 0.1f, Handles.SphereHandleCap))
-                        TogglePoint(x, y, z);
+                    if (obj.manulySetPoint)
+                    {
+                        if (Handles.Button(previous, Quaternion.identity, 0.05f, 0.05f, Handles.SphereHandleCap))
+                            TogglePoint(x, y, z);
+                    }
+                    else
+                    {
+                        Handles.SphereHandleCap(0, previous, Quaternion.identity, 0.05f, EventType.Repaint);
+                    }
                 }
             }
         }
@@ -75,4 +83,9 @@ public class MeshGeneratorEditor : Editor
         obj.points[x, y, z].IsActive = !obj.points[x, y, z].IsActive;
         obj.UpdateMesh();
     }
+    public static float Remap(float value, float from1, float to1, float from2, float to2)
+    {
+        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    }
+
 }
