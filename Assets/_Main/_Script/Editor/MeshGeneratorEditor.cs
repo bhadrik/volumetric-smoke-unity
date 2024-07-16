@@ -1,8 +1,5 @@
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 [CustomEditor(typeof(MeshGenerator))]
 public class MeshGeneratorEditor : Editor
@@ -20,7 +17,7 @@ public class MeshGeneratorEditor : Editor
             var obj = (MeshGenerator)target;
             obj.UpdateGrid();
         }
-        
+
         if (GUILayout.Button("Update Mesh"))
         {
             var obj = (MeshGenerator)target;
@@ -56,7 +53,8 @@ public class MeshGeneratorEditor : Editor
                     previous = obj.points[x, y, z].Position;
 
                     if (obj.points[x, y, z].IsActive)
-                        Handles.color = Color.Lerp(obj.inactivePointColor, obj.activePointColor, Remap(obj.points[x, y, z].RandomValue, 5, 60, 0, 1));
+                        Handles.color = Color.Lerp(obj.inactivePointColor, obj.activePointColor, Remap(obj.points[x, y, z].RandomValue, Point.min, Point.max, 0, 1));
+                    //Handles.color = obj.activePointColor;
                     else
                         Handles.color = obj.inactivePointColor;
 
@@ -77,12 +75,14 @@ public class MeshGeneratorEditor : Editor
         }
     }
 
+
     void TogglePoint(int x, int y, int z)
     {
         //Debug.Log($"Toggle: {x} {y} {z}");
         obj.points[x, y, z].IsActive = !obj.points[x, y, z].IsActive;
         obj.UpdateMesh();
     }
+
     public static float Remap(float value, float from1, float to1, float from2, float to2)
     {
         return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
